@@ -1,0 +1,49 @@
+/* Reading from file function */
+read_number_series(filename) := block(
+    [stream, line, num, numbers : []],
+    stream : openr(filename),
+    while (line : readline(stream)) # false do (
+        if stringp(line) and line # "" then (
+            num : parse_string(line),
+            push(num, numbers)
+        )
+    ),
+    close(stream),
+    return(numbers)
+);
+
+
+/* === Input initialisation === */
+numbers : read_number_series("C:/Users/Andrii/Documents/data.txt")$
+alphabet : ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"]$
+
+
+/* === Interval calculation === */
+n : length(alphabet)$
+min_val : lmin(numbers)$
+max_val : lmax(numbers)$
+interval_length : (max_val - min_val) / n$
+intervals : makelist(
+    [ min_val + (i-1)*interval_length,
+        min_val + i*interval_length ],
+    i, 1, n
+)$
+
+
+/* === Linguistic sequence building === */
+number_to_symbol(x) := block(
+    [idx],
+    idx : floor((x - min_val) / interval_length) + 1,
+    if idx > n then idx : n,
+    alphabet[idx]
+)$
+linguistic_sequence : map(number_to_symbol, numbers)$
+
+
+/* === ВИВІД РЕЗУЛЬТАТІВ === */
+with_stdout("C:/Users/Andrii/Documents/res_2.txt",
+    block(
+        printf(true, "Linguistic sequence: "),
+        printf(true, "~a", sconcat(apply(concat, map(lambda([x], sconcat(x, " ")), linguistic_sequence))))
+    )
+)$
